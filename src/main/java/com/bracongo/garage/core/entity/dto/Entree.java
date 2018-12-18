@@ -3,6 +3,7 @@ package com.bracongo.garage.core.entity.dto;
 import com.bracongo.garage.core.entity.EntreeGarage;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Send entry to client once it is registered in database
@@ -15,7 +16,7 @@ public class Entree implements Serializable{
     public Entree() {
     }
     
-    public Entree(EntreeGarage entreeGarage){
+    public Entree(EntreeGarage entreeGarage, List<RaisonChoisieDto> choisieDtos){
         this.idServeur = entreeGarage.getId();
         this.idEquipement = entreeGarage.getEquipements().getEquNoInvent();
         this.type = entreeGarage.getEquipements().getType().name();
@@ -27,6 +28,7 @@ public class Entree implements Serializable{
         this.niveauEssence = entreeGarage.getNiveauEssence();
         this.utilisateur = entreeGarage.getUtilisateur().getNom();
         this.idUtilisateur = entreeGarage.getUtilisateur().getId().intValue();
+        this.raisonChoisies = choisieDtos;
     }
     
     private Long idServeur;
@@ -56,6 +58,8 @@ public class Entree implements Serializable{
     private String designation;
 
     private String type;
+    
+    private List<RaisonChoisieDto> raisonChoisies;
 
     public Long getIdServeur() {
         return idServeur;
@@ -167,6 +171,14 @@ public class Entree implements Serializable{
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public List<RaisonChoisieDto> getRaisonChoisies() {
+        return raisonChoisies;
+    }
+
+    public void setRaisonChoisies(List<RaisonChoisieDto> raisonChoisies) {
+        this.raisonChoisies = raisonChoisies;
     }
 
     @Override

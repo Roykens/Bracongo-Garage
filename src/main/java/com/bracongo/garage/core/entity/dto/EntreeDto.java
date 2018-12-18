@@ -39,6 +39,10 @@ public class EntreeDto implements Serializable {
     private String lieu;
 
     private List<QuestionReponseDto> questionProjection;
+    
+    private List<RaisonChoisieOrigine> raisonChoisieOrigines;
+    
+    private List<CheckRaisonSortieDto> checkRaisonSortieDtos;
 
     private List<String> observations;
 
@@ -157,13 +161,13 @@ public class EntreeDto implements Serializable {
     public void setLieu(String lieu) {
         this.lieu = lieu;
     }
-    
-    
 
     @Override
     public String toString() {
-        return "EntreeDto{" + "dateEntree=" + dateEntree + ", idEquipement=" + idEquipement + ", demandeur=" + demandeur + ", charrois=" + charrois + ", kilometre=" + kilometre + ", niveauEssence=" + niveauEssence + ", idUtilisateur=" + idUtilisateur + ", heure=" + heure + ", kilometreHubdo=" + kilometreHubdo + ", questionProjections=" + questionProjection + ", observations=" + observations + ", travauxEntrees=" + travaux + ", pdrs=" + pdrs + '}';
+        return "EntreeDto{" + "idEntree=" + idEntree + ", dateEntree=" + dateEntree + ", idEquipement=" + idEquipement + ", demandeur=" + demandeur + ", charrois=" + charrois + ", kilometre=" + kilometre + ", niveauEssence=" + niveauEssence + ", idUtilisateur=" + idUtilisateur + ", heure=" + heure + ", kilometreHubdo=" + kilometreHubdo + ", lieu=" + lieu + ", questionProjection=" + questionProjection + ", raisonChoisieOrigines=" + raisonChoisieOrigines + ", checkRaisonSortieDtos=" + checkRaisonSortieDtos + ", observations=" + observations + ", travaux=" + travaux + ", pdrs=" + pdrs + '}';
     }
+    
+    
 
     public Long getIdEntree() {
         return idEntree;
@@ -172,7 +176,21 @@ public class EntreeDto implements Serializable {
     public void setIdEntree(Long idEntree) {
         this.idEntree = idEntree;
     }
-    
-    
+
+    public List<RaisonChoisieOrigine> getRaisonChoisieOrigines() {
+        return raisonChoisieOrigines;
+    }
+
+    public void setRaisonChoisieOrigines(List<RaisonChoisieOrigine> raisonChoisieOrigines) {
+        this.raisonChoisieOrigines = raisonChoisieOrigines;
+    }
+
+    public List<CheckRaisonSortieDto> getCheckRaisonSortieDtos() {
+        return checkRaisonSortieDtos;
+    }
+
+    public void setCheckRaisonSortieDtos(List<CheckRaisonSortieDto> checkRaisonSortieDtos) {
+        this.checkRaisonSortieDtos = checkRaisonSortieDtos;
+    }
     
 }

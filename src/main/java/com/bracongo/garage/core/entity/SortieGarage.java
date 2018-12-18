@@ -28,6 +28,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class SortieGarage implements Serializable{
 
     @OneToMany(mappedBy = "sortieGarage")
+    private List<CheckRaisonSortie> checkRaisonSorties;
+
+    @OneToMany(mappedBy = "sortieGarage")
     @JsonIgnore
     private List<ReponseSortie> reponseSorties;
 
@@ -179,6 +182,14 @@ public class SortieGarage implements Serializable{
 
     public void setEntreeGarage(EntreeGarage entreeGarage) {
         this.entreeGarage = entreeGarage;
+    }
+
+    public List<CheckRaisonSortie> getCheckRaisonSorties() {
+        return checkRaisonSorties;
+    }
+
+    public void setCheckRaisonSorties(List<CheckRaisonSortie> checkRaisonSorties) {
+        this.checkRaisonSorties = checkRaisonSorties;
     }
     
     

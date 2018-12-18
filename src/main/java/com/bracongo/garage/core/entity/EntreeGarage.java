@@ -28,6 +28,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Table(name = "ENTREE_GARAGE")
 public class EntreeGarage implements Serializable{
 
+    @OneToMany(mappedBy = "entreeGarage")
+    @JsonIgnore
+    private List<RaisonEntreeChoisie> raisonEntreeChoisies;
+
     @OneToOne(mappedBy = "entreeGarage")
     @JsonIgnore
     private SortieGarage sortieGarage;
@@ -239,6 +243,14 @@ public class EntreeGarage implements Serializable{
 
     public void setSortieGarage(SortieGarage sortieGarage) {
         this.sortieGarage = sortieGarage;
+    }
+
+    public List<RaisonEntreeChoisie> getRaisonEntreeChoisies() {
+        return raisonEntreeChoisies;
+    }
+
+    public void setRaisonEntreeChoisies(List<RaisonEntreeChoisie> raisonEntreeChoisies) {
+        this.raisonEntreeChoisies = raisonEntreeChoisies;
     }
     
     

@@ -1,29 +1,38 @@
 package com.bracongo.garage.core.service.impl;
 
 import com.bracongo.garage.core.dao.IArticleDao;
+import com.bracongo.garage.core.dao.ICheckRaisonSortieDao;
 import com.bracongo.garage.core.dao.IEntreeGarageDao;
 import com.bracongo.garage.core.dao.IEquipementDao;
 import com.bracongo.garage.core.dao.IObservationDao;
 import com.bracongo.garage.core.dao.IPdrSouhaiteDao;
 import com.bracongo.garage.core.dao.IQuestionDao;
+import com.bracongo.garage.core.dao.IRaisonEntreeChoisieDao;
+import com.bracongo.garage.core.dao.IRaisonEntreeDao;
 import com.bracongo.garage.core.dao.IReponseEntreeDao;
 import com.bracongo.garage.core.dao.IReponseSortieDao;
 import com.bracongo.garage.core.dao.ISortieGarageDao;
 import com.bracongo.garage.core.dao.ITravailEntreeDao;
 import com.bracongo.garage.core.dao.IUtilisateurDao;
 import com.bracongo.garage.core.entity.Articles;
+import com.bracongo.garage.core.entity.CheckRaisonSortie;
 import com.bracongo.garage.core.entity.EntreeGarage;
 import com.bracongo.garage.core.entity.Equipements;
 import com.bracongo.garage.core.entity.EtapeVehicule;
 import com.bracongo.garage.core.entity.Observation;
 import com.bracongo.garage.core.entity.PdrSouhaite;
+import com.bracongo.garage.core.entity.RaisonEntree;
+import com.bracongo.garage.core.entity.RaisonEntreeChoisie;
 import com.bracongo.garage.core.entity.ReponseEntree;
 import com.bracongo.garage.core.entity.ReponseSortie;
 import com.bracongo.garage.core.entity.SortieGarage;
 import com.bracongo.garage.core.entity.TravailEntree;
+import com.bracongo.garage.core.entity.dto.CheckRaisonSortieDto;
 import com.bracongo.garage.core.entity.dto.Entree;
 import com.bracongo.garage.core.entity.dto.EntreeDto;
 import com.bracongo.garage.core.entity.dto.QuestionReponseDto;
+import com.bracongo.garage.core.entity.dto.RaisonChoisieDto;
+import com.bracongo.garage.core.entity.dto.RaisonChoisieOrigine;
 import com.bracongo.garage.core.service.IEntreeGarageService;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +82,15 @@ public class EntreeGarageServiceImpl implements IEntreeGarageService{
     
     @Autowired
     private IPdrSouhaiteDao pdrSouhaiteDao;
+    
+    @Autowired
+    private IRaisonEntreeDao raisonEntreeDao;
+    
+    @Autowired
+    private IRaisonEntreeChoisieDao raisonEntreeChoisieDao;
+    
+    @Autowired
+    private ICheckRaisonSortieDao checkRaisonSortieDao;
     
     @Override
     public EntreeGarage saveOrUpdateEntreeGarage(EntreeGarage entree) {
@@ -150,7 +168,28 @@ public class EntreeGarageServiceImpl implements IEntreeGarageService{
                 }
             }
             
-            Entree result = new Entree(eG);
+            List<RaisonChoisieOrigine> choisieOrigines = entreeDto.getRaisonChoisieOrigines();
+            List<RaisonChoisieDto> choisieDtos = new ArrayList<>();
+            for (RaisonChoisieOrigine choisieOrigine : choisieOrigines) {
+                System.out.println("TTTT " + choisieOrigine);
+                RaisonEntree re = raisonEntreeDao.getOne(choisieOrigine.getIdRaison());
+                if(re != null){
+                    RaisonEntreeChoisie rec = new RaisonEntreeChoisie();
+                    rec.setEntreeGarage(eG);
+                    rec.setRaisonEntree(re);
+                    rec.setOrigineRaisonEntree(choisieOrigine.getOrigineRaisonEntree());
+                    rec = raisonEntreeChoisieDao.save(rec);
+                    System.out.println("REC " + rec);
+                    RaisonChoisieDto choisieDto = new RaisonChoisieDto();
+                    choisieDto.setIdRaisonChoisie(rec.getId());
+                    choisieDto.setNomRaison(re.getIntitule());
+                    choisieDto.setIdEntree(eG.getId());
+                    choisieDto.setAuteur(rec.getOrigineRaisonEntree().name());
+                    choisieDtos.add(choisieDto);
+                }
+            }
+            
+            Entree result = new Entree(eG, choisieDtos);
             System.out.println("DONNEE A ENVOYER " + result);
             return result;
         }
@@ -160,13 +199,15 @@ public class EntreeGarageServiceImpl implements IEntreeGarageService{
     @Override
     public List<Entree> getAll() {
        List<EntreeGarage> entrees = entreeGarageDao.findAll();
-        System.out.println(entrees);
+     /*   System.out.println(entrees);
        entrees.forEach((entree) -> {
            System.out.println(entree);
         });
+       */
        List<Entree> result = new ArrayList<>();
        entrees.forEach((entree) -> {
-           result.add(new Entree(entree));
+           List<RaisonChoisieDto> raisons = getAllRaisonEntreeByEntree(entree);
+           result.add(new Entree(entree, raisons));
         });
         return  result;
     }
@@ -202,11 +243,40 @@ public class EntreeGarageServiceImpl implements IEntreeGarageService{
             for (String observation : observations) {
                 Observation o = new Observation(sG, observation);
                 observationDao.save(o);
-            }           
+            }
+            
+            List<CheckRaisonSortieDto> checkRaisonSortieDtos = entreeDto.getCheckRaisonSortieDtos();
+            for (CheckRaisonSortieDto checkRaisonSortieDto : checkRaisonSortieDtos) {
+                CheckRaisonSortie chr = new CheckRaisonSortie();
+                RaisonEntreeChoisie rec = raisonEntreeChoisieDao.getOne(checkRaisonSortieDto.getIdRaisonChoisie());
+                if(rec != null){
+                    chr.setRaisonEntreeChoisie(rec);
+                }
+                chr.setSortieGarage(sG);
+                chr.setResultat(checkRaisonSortieDto.getCheckRaisonResult());
+                checkRaisonSortieDao.save(chr);
+            }
+            
             eG.setEtapeVehicule(EtapeVehicule.SORTIE);
             entreeGarageDao.save(eG);            
         }
       //  return null;
+    }
+    
+    private List<RaisonChoisieDto> getAllRaisonEntreeByEntree(EntreeGarage entreeGarage){
+        List<RaisonChoisieDto> result = new ArrayList<>();
+        List<RaisonEntreeChoisie> recs = raisonEntreeChoisieDao.getAllByEntree(entreeGarage);
+        recs.stream().map((rec) -> {
+            RaisonChoisieDto choisieDto = new RaisonChoisieDto();
+            choisieDto.setAuteur(rec.getCheckRaisonSorties().toString());
+            choisieDto.setIdEntree(entreeGarage.getId());
+            choisieDto.setIdRaisonChoisie(rec.getId());
+            choisieDto.setNomRaison(rec.getRaisonEntree().getIntitule());
+            return choisieDto;
+        }).forEachOrdered((choisieDto) -> {
+            result.add(choisieDto);
+        });
+        return result;
     }
     
 }
